@@ -343,7 +343,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                         End If
                       Case eSc2RanksBracket._4V4T, eSc2RanksBracket._4V4R
                         If Team.Team.League = Player.Highest4V4League Then
-                          If Team.Team.Division.Rank.Value < Player.Highest4V4Rank Then Player.Highest4V4Rank = Team.DivisionRank
+                          If Team.DivisionRank < Player.Highest4V4Rank Then Player.Highest4V4Rank = Team.DivisionRank
                         ElseIf Team.Team.League > Player.Highest4V4League Then
                           Player.Highest4V4League = Team.Team.League
                           Player.Highest4V4Rank = Team.DivisionRank
