@@ -42,8 +42,6 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Property DisableAutoOpen As Boolean
 
-    Property RefreshTimeout As TimeSpan
-
     Property RequestIdleTime As TimeSpan
 
     'Settings

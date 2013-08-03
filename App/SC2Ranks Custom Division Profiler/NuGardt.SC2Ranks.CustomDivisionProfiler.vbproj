@@ -212,9 +212,6 @@
     <Content Include="Images\Races.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Tools\Linux\nscdp_refresh.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Tools\Linux\nscdp_run.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

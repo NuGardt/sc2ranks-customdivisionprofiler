@@ -45,12 +45,6 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Public Shared ReadOnly DefaultRetryWaitTimeMax As TimeSpan = TimeSpan.FromSeconds(180)
     Public Const DefaultRetryWaitTimeMaxString As String = "00:03:00"
     Public Const DefaultDisableAutoOpen As Boolean = False
-    Public Shared ReadOnly DefaultRefreshTimeout As TimeSpan = TimeSpan.FromSeconds(5)
-    Public Const DefaultRefreshTimeoutString As String = "00:00:05"
-    Public Shared ReadOnly DefaultRefreshTimeoutMin As TimeSpan = TimeSpan.FromSeconds(1)
-    Public Const DefaultRefreshTimeoutMinString As String = "00:00:01"
-    Public Shared ReadOnly DefaultRefreshTimeoutMax As TimeSpan = TimeSpan.FromSeconds(60)
-    Public Const DefaultRefreshTimeoutMaxString As String = "00:01:00"
     Public Shared ReadOnly DefaultRequestIdleTime As TimeSpan = TimeSpan.FromSeconds(5)
     Public Const DefaultRequestIdleTimeString As String = "00:00:05"
     Public Shared ReadOnly DefaultRequestIdleTimeMin As TimeSpan = TimeSpan.FromSeconds(1)
@@ -102,7 +96,6 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Private m_RetryCount As Integer
     Private m_RetryWaitTime As TimeSpan
     Private m_DisableAutoOpen As Boolean
-    Private m_RefreshTimeout As TimeSpan
     Private m_RequestIdleTime As TimeSpan
 
     'Settings
@@ -161,7 +154,6 @@ Namespace SC2Ranks.CustomDivisionProfiler
       Me.m_RetryCount = DefaultRetryCount
       Me.m_RetryWaitTime = DefaultRetryWaitTime
       Me.m_DisableAutoOpen = DefaultDisableAutoOpen
-      Me.m_RefreshTimeout = DefaultRefreshTimeout
       Me.m_RequestIdleTime = DefaultRequestIdleTime
 
       'Settings
@@ -515,25 +507,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
         Me.m_DisableAutoOpen = Value
       End Set
     End Property
-
-    <DataMember(Name := "RefreshTimeout")>
-    <DefaultValue(GetType(TimeSpan), DefaultRefreshTimeoutString)>
-    <DisplayName("Refresh timeout")>
-    <Description("The time before giving up on waiting for a reponse from the server. (Format: HH:mm:ss, Valid range: 00:00:01 to 00:00:30)")>
-    <Category("Control")>
-    Public Property RefreshTimeout As TimeSpan Implements IConfig.RefreshTimeout
-      Get
-        Return Me.m_RefreshTimeout
-      End Get
-      Set(ByVal Value As TimeSpan)
-        If Value >= DefaultRefreshTimeoutMin AndAlso Value <= DefaultRefreshTimeoutMax Then
-          Me.m_RefreshTimeout = Value
-        Else
-          Me.m_RefreshTimeout = DefaultRefreshTimeout
-        End If
-      End Set
-    End Property
-
+    
     <DataMember(Name := "RequestIdleTime")>
     <DefaultValue(GetType(TimeSpan), DefaultRequestIdleTimeString)>
     <DisplayName("Request Idle Time")>

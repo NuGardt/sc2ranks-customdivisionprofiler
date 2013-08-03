@@ -7,6 +7,5 @@ NuGardt.SC2Ranks.CustomDivisionProfiler.exe
 
 Tools\Template.htm
 Tools\Linux\nscdp_run.sh
-Tools\Linux\nscdp_refresh.sh
 
 Images\*.*
