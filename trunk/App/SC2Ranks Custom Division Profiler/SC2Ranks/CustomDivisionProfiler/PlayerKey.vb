@@ -24,7 +24,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Public ReadOnly BattleNetID As Int64
     Public ReadOnly Region As eSc2RanksRegion
-    Public ReadOnly AchievementPoints As Int16
+    Public ReadOnly AchievementPoints As Int32
 
 #Region "Compare & Equals"
 
@@ -96,7 +96,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Public Sub New(ByVal BattleNetID As Int64,
                    ByVal Region As eSc2RanksRegion,
-                   ByVal AchievementPoints As Int16)
+                   ByVal AchievementPoints As Int32)
       Me.BattleNetID = BattleNetID
       Me.Region = Region
       Me.AchievementPoints = AchievementPoints
