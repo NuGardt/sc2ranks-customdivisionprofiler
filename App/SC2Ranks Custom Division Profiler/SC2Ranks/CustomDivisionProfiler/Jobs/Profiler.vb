@@ -36,9 +36,6 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     Private Const CellSpacing As Integer = 2
     Private Const CellPadding As Integer = 0
 
-    'ToDo: Bracket Selection based on Template Tags.
-    Private ReadOnly Brackets() As eSc2RanksBracket = {eSc2RanksBracket._1V1, eSc2RanksBracket._2V2T, eSc2RanksBracket._2V2R, eSc2RanksBracket._3V3T, eSc2RanksBracket._3V3R, eSc2RanksBracket._4V4T, eSc2RanksBracket._4V4R}
-
     Private Const HeaderRank As String = "#"
     Private Const HeaderLastUpdate As String = "Last Update"
     Private Const HeaderExpansion As String = "Expan."
@@ -205,6 +202,21 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
           If ReportProgress IsNot Nothing Then Call ReportProgress.Invoke(Me, 0, eProgressBarState.Normal)
 
+          Dim Brackets As New List(Of eSc2RanksBracket)
+
+          If Me.Config.Load1V1 Then Call Brackets.Add(eSc2RanksBracket._1V1)
+          If Me.Config.Load2V2T Then Call Brackets.Add(eSc2RanksBracket._2V2T)
+          If Me.Config.Load2V2R Then Call Brackets.Add(eSc2RanksBracket._2V2R)
+          If Me.Config.Load3V3T Then Call Brackets.Add(eSc2RanksBracket._3V3T)
+          If Me.Config.Load3V3R Then Call Brackets.Add(eSc2RanksBracket._3V3R)
+          If Me.Config.Load4V4T Then Call Brackets.Add(eSc2RanksBracket._4V4T)
+          If Me.Config.Load4V4R Then Call Brackets.Add(eSc2RanksBracket._4V4R)
+
+          If (Brackets.Count = 0) Then
+            Ex = New Exception("No to load. No brackets selected.")
+            Exit Try
+          End If
+
           Ex = Sc2RanksService.CreateInstance(Config.ApiKey, CacheStream, Me.Config, RankService)
 
           If (Ex IsNot Nothing) Then Exit Try
@@ -237,7 +249,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             Call .Dispose()
           End With
 
-          Dim TotalCalls As Int32 = Brackets.Length
+          Dim TotalCalls As Int32 = Brackets.Count
           Dim CallCount As Int32 = 0
 
           For Each Bracket In Brackets
@@ -393,109 +405,113 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           Dim pMax As Int32 = listPlayers.Count - 1
           For p As Int32 = 0 To pMax
             With listPlayers.Item(p)
-              Call SbAchievements.OpenRow()
+              'todo
 
-              If Config.ShowRank Then
+              If (Not Me.Config.AchievementRankingOnlyWhenRanked) OrElse .IsRankedSomewhere Then
+                Call SbAchievements.OpenRow()
+
+                If Config.ShowRank Then
+                  If IsAlternateRow Then
+                    Call SbAchievements.OpenCell(CssAlternateRow1, CssLastUpdateCell)
+                  Else
+                    Call SbAchievements.OpenCell(CssAlternateRow0, CssLastUpdateCell)
+                  End If
+                  Call SbAchievements.Append((p + 1).ToString("N0"))
+                  Call SbAchievements.CloseCell()
+                End If
+
                 If IsAlternateRow Then
                   Call SbAchievements.OpenCell(CssAlternateRow1, CssLastUpdateCell)
                 Else
                   Call SbAchievements.OpenCell(CssAlternateRow0, CssLastUpdateCell)
                 End If
-                Call SbAchievements.Append((p + 1).ToString("N0"))
+                Call SbAchievements.Append(.Character.UpdatedAt.ToString("yyyy-MM-dd"))
                 Call SbAchievements.CloseCell()
-              End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssLastUpdateCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssLastUpdateCell)
-              End If
-              Call SbAchievements.Append(.Character.UpdatedAt.ToString("yyyy-MM-dd"))
-              Call SbAchievements.CloseCell()
-
-              If Config.ShowRegion Then
-                If IsAlternateRow Then
-                  Call SbAchievements.OpenCell(CssAlternateRow1, CssRegionCell)
-                Else
-                  Call SbAchievements.OpenCell(CssAlternateRow0, CssRegionCell)
+                If Config.ShowRegion Then
+                  If IsAlternateRow Then
+                    Call SbAchievements.OpenCell(CssAlternateRow1, CssRegionCell)
+                  Else
+                    Call SbAchievements.OpenCell(CssAlternateRow0, CssRegionCell)
+                  End If
+                  Call SbAchievements.Append(.Character.Region.ToString)
+                  Call SbAchievements.CloseCell()
                 End If
-                Call SbAchievements.Append(.Character.Region.ToString)
+
+                If IsAlternateRow Then
+                  Call SbAchievements.OpenCell(CssAlternateRow1, CssPointsCell)
+                Else
+                  Call SbAchievements.OpenCell(CssAlternateRow0, CssPointsCell)
+                End If
+                Call SbAchievements.Append(.Character.AchievementPoints.ToString("N0"))
                 Call SbAchievements.CloseCell()
-              End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssPointsCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssPointsCell)
-              End If
-              Call SbAchievements.Append(.Character.AchievementPoints.ToString("N0"))
-              Call SbAchievements.CloseCell()
+                Dim Tag As String
 
-              Dim Tag As String
+                If .Character.Clan IsNot Nothing Then
+                  Tag = .Character.Clan.Tag
+                Else
+                  Tag = Nothing
+                End If
 
-              If .Character.Clan IsNot Nothing Then
-                Tag = .Character.Clan.Tag
-              Else
-                Tag = Nothing
-              End If
+                'ToDo: Favourite Race
+                Call CreatePlayerCell(.Character.Name, Tag, eSc2RanksRace.Random, .Character.Url, SbAchievements, Me.Config, IsAlternateRow)
 
-              'ToDo: Favourite Race
-              Call CreatePlayerCell(.Character.Name, Tag, eSc2RanksRace.Random, .Character.Url, SbAchievements, Me.Config, IsAlternateRow)
+                Call GetLeaugeImage(.Highest1V1League, .Highest1V1Rank, AlternateText, CssClass)
 
-              Call GetLeaugeImage(.Highest1V1League, .Highest1V1Rank, AlternateText, CssClass)
+                If IsAlternateRow Then
+                  Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
+                Else
+                  Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
+                End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
-              End If
+                Call SbAchievements.AppendSpan(AlternateText, CssClass)
 
-              Call SbAchievements.AppendSpan(AlternateText, CssClass)
+                Call SbAchievements.CloseCell()
 
-              Call SbAchievements.CloseCell()
+                Call GetLeaugeImage(.Highest2V2League, .Highest2V2Rank, AlternateText, CssClass)
 
-              Call GetLeaugeImage(.Highest2V2League, .Highest2V2Rank, AlternateText, CssClass)
+                If IsAlternateRow Then
+                  Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
+                Else
+                  Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
+                End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
-              End If
+                Call SbAchievements.AppendSpan(AlternateText, CssClass)
 
-              Call SbAchievements.AppendSpan(AlternateText, CssClass)
+                Call SbAchievements.CloseCell()
 
-              Call SbAchievements.CloseCell()
+                Call GetLeaugeImage(.Highest3V3League, .Highest3V3Rank, AlternateText, CssClass)
 
-              Call GetLeaugeImage(.Highest3V3League, .Highest3V3Rank, AlternateText, CssClass)
+                If IsAlternateRow Then
+                  Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
+                Else
+                  Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
+                End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
-              End If
+                Call SbAchievements.AppendSpan(AlternateText, CssClass)
 
-              Call SbAchievements.AppendSpan(AlternateText, CssClass)
+                Call SbAchievements.CloseCell()
 
-              Call SbAchievements.CloseCell()
+                Call GetLeaugeImage(.Highest4V4League, .Highest4V4Rank, AlternateText, CssClass)
 
-              Call GetLeaugeImage(.Highest4V4League, .Highest4V4Rank, AlternateText, CssClass)
+                If IsAlternateRow Then
+                  Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
+                Else
+                  Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
+                End If
 
-              If IsAlternateRow Then
-                Call SbAchievements.OpenCell(CssAlternateRow1, CssLeagueCell)
-              Else
-                Call SbAchievements.OpenCell(CssAlternateRow0, CssLeagueCell)
-              End If
+                Call SbAchievements.AppendSpan(AlternateText, CssClass)
 
-              Call SbAchievements.AppendSpan(AlternateText, CssClass)
+                Call SbAchievements.CloseCell()
 
-              Call SbAchievements.CloseCell()
+                Call SbAchievements.CloseRow()
 
-              Call SbAchievements.CloseRow()
-
-              If IsAlternateRow Then
-                IsAlternateRow = False
-              Else
-                IsAlternateRow = True
+                If IsAlternateRow Then
+                  IsAlternateRow = False
+                Else
+                  IsAlternateRow = True
+                End If
               End If
             End With
           Next p
