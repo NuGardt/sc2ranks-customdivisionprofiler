@@ -37,7 +37,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Public Highest4V4Rank As Integer
 
     Public Sub New(ByVal Character As Sc2RanksCharacterResult)
-      Call MyBase.New(Character.BattleNetID, Character.Region, Character.AchievementPoint)
+      Call MyBase.New(Character.BattleNetID, Character.Region, Character.AchievementPoints)
 
       Me.Character = Character
     End Sub

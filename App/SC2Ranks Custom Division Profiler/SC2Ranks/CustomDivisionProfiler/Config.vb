@@ -507,7 +507,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
         Me.m_DisableAutoOpen = Value
       End Set
     End Property
-    
+
     <DataMember(Name := "RequestIdleTime")>
     <DefaultValue(GetType(TimeSpan), DefaultRequestIdleTimeString)>
     <DisplayName("Request Idle Time")>

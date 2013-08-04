@@ -15,16 +15,16 @@
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '
-Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
+Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Linq
 Imports NuGardt.SC2Ranks.Helper
 Imports NuGardt.SC2Ranks.API
 Imports NuGardt.Core
 Imports NuGardt.Core.Process
-Imports System.Security.Principal
 Imports NuGardt.SC2Ranks.API.Result
+Imports System.Security.Principal
 
 Namespace SC2Ranks.CustomDivisionProfiler.Jobs
   Friend Class Profiler(Of TKey)
@@ -36,6 +36,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     Private Const CellSpacing As Integer = 2
     Private Const CellPadding As Integer = 0
 
+    'ToDo: Bracket Selection based on Template Tags.
     Private ReadOnly Brackets() As eSc2RanksBracket = {eSc2RanksBracket._1V1, eSc2RanksBracket._2V2T, eSc2RanksBracket._2V2R, eSc2RanksBracket._3V3T, eSc2RanksBracket._3V3R, eSc2RanksBracket._4V4T, eSc2RanksBracket._4V4R}
 
     Private Const HeaderRank As String = "#"
@@ -196,8 +197,6 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           Dim listLeague4v4 As New List(Of Team)
 
           Dim Player As Player = Nothing
-          Dim CDT As Sc2RanksCustomDivisionTeamsResult = Nothing
-          Dim GCDR As Sc2RanksCustomDivisionCharactersResult = Nothing
           Dim dMax As Integer
           Dim iMax As Integer
           Dim [Try] As Integer = 0
@@ -213,45 +212,30 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           'Get Custom Division and enumerate all members
           Call Trace.WriteLine("Downloading custom division data...")
 
-          [Try] += 1
-          Ex = RankService.GetCustomDivisionCharacters(Me.Config.CustomDivisionID, eSc2RanksRegion.Global, GCDR, Me.Config.IgnoreCacheGetCustomDivision)
-          If (Ex IsNot Nothing) AndAlso (ReportProgress IsNot Nothing) Then Call ReportProgress.Invoke(Me, 0, eProgressBarState.Paused)
+          Dim GCDRList As IList(Of Sc2RanksCustomDivisionCharactersResult) = Nothing
+          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksCustomDivisionCharactersResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
+          If (Ex IsNot Nothing) Then Exit Try
 
-          Do Until (Ex Is Nothing)
-            If Verbose Then
-              Call Trace.WriteLine("GetCustomDivision Error: " + Ex.ToString, (New StackFrame).GetMethod.Name)
-            Else
-              Call Trace.WriteLine("GetCustomDivision Error: " + Ex.Message)
-            End If
-            If [Try] >= Me.Config.RetryCount Then Exit Try
+          With GCDRList.GetEnumerator()
+            Call .Reset()
 
-            Call Trace.WriteLine(String.Format("Waiting for next try in {0} seconds.", Me.Config.RetryWaitTime.ToString))
-            Call Sleep(Of TKey)(Me.Config.RetryWaitTime, Me.ProcessTag, Me.OnCancelPending)
+            Do While .MoveNext()
+              Dim Character As Sc2RanksCharacterResult
+              dMax = .Current.Characters.Length - 1
+              For d As Integer = 0 To dMax
+                Character = .Current.Characters(d)
 
-            [Try] += 1
-            Call Trace.WriteLine(String.Format("Retrying GetCustomDivision (Try #{0}/{1})", [Try].ToString, Me.Config.RetryCount.ToString))
-            Ex = RankService.GetCustomDivisionCharacters(Me.Config.CustomDivisionID, eSc2RanksRegion.Global, GCDR, Me.Config.IgnoreCacheGetCustomDivision)
+                'Only list a player once incase of duplicate entries.
+                Player = New Player(Character)
+                If (Not CustomDivisionPlayers.ContainsKey(Player)) Then
+                  Call CustomDivisionPlayers.Add(Player, Player)
+                  Call listPlayers.Add(Player)
+                End If
+              Next d
+            Loop
 
-            If (Ex IsNot Nothing) Then
-              If [Try] >= Me.Config.RetryCount Then Exit Try
-            Else
-              If ReportProgress IsNot Nothing Then Call ReportProgress.Invoke(Me, 0, eProgressBarState.Normal)
-            End If
-          Loop
-          [Try] = 0
-
-          Dim Character As Sc2RanksCharacterResult
-          dMax = GCDR.Characters.Length - 1
-          For d As Integer = 0 To dMax
-            Character = GCDR.Characters(d)
-
-            'Only list a player once incase of duplicate entries.
-            Player = New Player(Character)
-            If (Not CustomDivisionPlayers.ContainsKey(Player)) Then
-              Call CustomDivisionPlayers.Add(Player, Player)
-              Call listPlayers.Add(Player)
-            End If
-          Next d
+            Call .Dispose()
+          End With
 
           Dim TotalCalls As Int32 = Brackets.Length
           Dim CallCount As Int32 = 0
@@ -259,32 +243,9 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           For Each Bracket In Brackets
             Call Trace.WriteLine(String.Format("Downloading team(s) of custom division {0}.", Enums.BracketNotationBuffer.GetValue(Bracket)))
 
-            [Try] += 1
-            Ex = RankService.GetCustomDivisionTeams(Config.CustomDivisionID, eSc2RanksRankRegion.Global, Config.Expansion, Bracket, eSc2RanksLeague.All, CDT, IgnoreCache := Me.Config.IgnoreCacheGetTeam)
-            If (Ex IsNot Nothing) AndAlso (ReportProgress IsNot Nothing) Then Call ReportProgress.Invoke(Me, (CallCount / TotalCalls) * 100, eProgressBarState.Paused)
-
-            Do Until (Ex Is Nothing)
-              If Verbose Then
-                Call Trace.WriteLine("GetTeamInfoByBNetID Error: " + Ex.ToString, (New StackFrame).GetMethod.Name)
-              Else
-                Call Trace.WriteLine("GetTeamInfoByBNetID Error: " + Ex.Message)
-              End If
-              If [Try] >= Me.Config.RetryCount Then Exit Try
-
-              Call Trace.WriteLine(String.Format("Waiting for next try in {0} seconds.", Me.Config.RetryWaitTime.ToString))
-              Call Sleep(Of TKey)(Me.Config.RetryWaitTime, Me.ProcessTag, Me.OnCancelPending)
-
-              [Try] += 1
-              Call Trace.WriteLine(String.Format("Retrying GetTeamInfoByBNetID (Try #{0}/{1})", [Try].ToString, Me.Config.RetryCount.ToString))
-              Ex = RankService.GetCustomDivisionTeams(Config.CustomDivisionID, eSc2RanksRankRegion.Global, eSc2RanksExpansion.HotS, Bracket, eSc2RanksLeague.All, CDT, IgnoreCache := Me.Config.IgnoreCacheGetTeam)
-
-              If (Ex IsNot Nothing) Then
-                If [Try] >= Me.Config.RetryCount Then Exit Try
-              Else
-                If ReportProgress IsNot Nothing Then Call ReportProgress.Invoke(Me, (CallCount / TotalCalls) * 100, eProgressBarState.Normal)
-              End If
-            Loop
-            [Try] = 0
+            Dim CDTList As IList(Of Sc2RanksCustomDivisionTeamsResult) = Nothing
+            Ex = ExecutePagedCall(Of GetCustomDivisionTeamsPagedCall, Sc2RanksCustomDivisionTeamsResult)(Me.ProcessTag, (CallCount / TotalCalls) * 100, New GetCustomDivisionTeamsPagedCall(RankService, Me.Config.CustomDivisionID, Me.Config.Expansion, Bracket, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, CDTList)
+            If (Ex IsNot Nothing) Then Exit Try
 
             CallCount += 1
             If ReportProgress IsNot Nothing Then Call ReportProgress.Invoke(Me, (CallCount / TotalCalls) * 100, eProgressBarState.Normal)
@@ -292,72 +253,81 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             Dim Team As Team
             Dim PlayerKey As PlayerKey
 
-            dMax = CDT.Teams.Length - 1
-            For d As Integer = 0 To dMax
-              Team = New Team(CDT.Teams(d))
+            With CDTList.GetEnumerator()
+              Call .Reset()
 
-              If (Team.Team.Division IsNot Nothing) Then
-                iMax = Team.Team.Characters.Count() - 1
-                For i As Int32 = 0 To iMax
-                  With Team.Team.Characters(i)
-                    PlayerKey = New PlayerKey(.BattleNetID, .Region)
-                  End With
+              Do While .MoveNext()
 
-                  If CustomDivisionPlayers.TryGetValue(PlayerKey, Player) Then
-                    Select Case Team.Team.Bracket
-                      Case eSc2RanksBracket._1V1
-                        If Team.Team.League = Player.Highest1V1League Then
-                          If Team.DivisionRank < Player.Highest1V1Rank Then Player.Highest1V1Rank = Team.DivisionRank
-                        ElseIf Team.Team.League > Player.Highest1V1League Then
-                          Player.Highest1V1League = Team.Team.League
-                          Player.Highest1V1Rank = Team.DivisionRank
-                        End If
+                dMax = .Current.Teams.Length - 1
+                For d As Integer = 0 To dMax
+                  Team = New Team(.Current.Teams(d))
 
-                        If (Not dictLeague1v1.ContainsKey(Team.Team.Division.ID)) Then
-                          Call dictLeague1v1.Add(Team.Team.Division.ID, Team)
-                          Call listLeague1v1.Add(Team)
-                        End If
-                      Case eSc2RanksBracket._2V2T, eSc2RanksBracket._2V2R
-                        If Team.Team.League = Player.Highest2V2League Then
-                          If Team.DivisionRank < Player.Highest2V2Rank Then Player.Highest2V2Rank = Team.DivisionRank
-                        ElseIf Team.Team.League > Player.Highest2V2League Then
-                          Player.Highest2V2League = Team.Team.League
-                          Player.Highest2V2Rank = Team.DivisionRank
-                        End If
+                  If (Team.Team.Division IsNot Nothing) Then
+                    iMax = Team.Team.Characters.Count() - 1
+                    For i As Int32 = 0 To iMax
+                      With Team.Team.Characters(i)
+                        PlayerKey = New PlayerKey(.BattleNetID, .Region)
+                      End With
 
-                        If (Not dictLeague2v2.ContainsKey(Team.Team.Division.ID)) Then
-                          Call dictLeague2v2.Add(Team.Team.Division.ID, Team)
-                          Call listLeague2v2.Add(Team)
-                        End If
-                      Case eSc2RanksBracket._3V3T, eSc2RanksBracket._3V3R
-                        If Team.Team.League = Player.Highest3V3League Then
-                          If Team.DivisionRank < Player.Highest3V3Rank Then Player.Highest3V3Rank = Team.DivisionRank
-                        ElseIf Team.Team.League > Player.Highest3V3League Then
-                          Player.Highest3V3League = Team.Team.League
-                          Player.Highest3V3Rank = Team.DivisionRank
-                        End If
+                      If CustomDivisionPlayers.TryGetValue(PlayerKey, Player) Then
+                        Select Case Team.Team.Bracket
+                          Case eSc2RanksBracket._1V1
+                            If Team.Team.League = Player.Highest1V1League Then
+                              If Team.DivisionRank < Player.Highest1V1Rank Then Player.Highest1V1Rank = Team.DivisionRank
+                            ElseIf Team.Team.League > Player.Highest1V1League Then
+                              Player.Highest1V1League = Team.Team.League
+                              Player.Highest1V1Rank = Team.DivisionRank
+                            End If
 
-                        If (Not dictLeague3v3.ContainsKey(Team.Team.Division.ID)) Then
-                          Call dictLeague3v3.Add(Team.Team.Division.ID, Team)
-                          Call listLeague3v3.Add(Team)
-                        End If
-                      Case eSc2RanksBracket._4V4T, eSc2RanksBracket._4V4R
-                        If Team.Team.League = Player.Highest4V4League Then
-                          If Team.DivisionRank < Player.Highest4V4Rank Then Player.Highest4V4Rank = Team.DivisionRank
-                        ElseIf Team.Team.League > Player.Highest4V4League Then
-                          Player.Highest4V4League = Team.Team.League
-                          Player.Highest4V4Rank = Team.DivisionRank
-                        End If
+                            If (Not dictLeague1v1.ContainsKey(Team.Team.Division.ID)) Then
+                              Call dictLeague1v1.Add(Team.Team.Division.ID, Team)
+                              Call listLeague1v1.Add(Team)
+                            End If
+                          Case eSc2RanksBracket._2V2T, eSc2RanksBracket._2V2R
+                            If Team.Team.League = Player.Highest2V2League Then
+                              If Team.DivisionRank < Player.Highest2V2Rank Then Player.Highest2V2Rank = Team.DivisionRank
+                            ElseIf Team.Team.League > Player.Highest2V2League Then
+                              Player.Highest2V2League = Team.Team.League
+                              Player.Highest2V2Rank = Team.DivisionRank
+                            End If
 
-                        If (Not dictLeague4v4.ContainsKey(Team.Team.Division.ID)) Then
-                          Call dictLeague4v4.Add(Team.Team.Division.ID, Team)
-                          Call listLeague4v4.Add(Team)
-                        End If
-                    End Select
+                            If (Not dictLeague2v2.ContainsKey(Team.Team.Division.ID)) Then
+                              Call dictLeague2v2.Add(Team.Team.Division.ID, Team)
+                              Call listLeague2v2.Add(Team)
+                            End If
+                          Case eSc2RanksBracket._3V3T, eSc2RanksBracket._3V3R
+                            If Team.Team.League = Player.Highest3V3League Then
+                              If Team.DivisionRank < Player.Highest3V3Rank Then Player.Highest3V3Rank = Team.DivisionRank
+                            ElseIf Team.Team.League > Player.Highest3V3League Then
+                              Player.Highest3V3League = Team.Team.League
+                              Player.Highest3V3Rank = Team.DivisionRank
+                            End If
+
+                            If (Not dictLeague3v3.ContainsKey(Team.Team.Division.ID)) Then
+                              Call dictLeague3v3.Add(Team.Team.Division.ID, Team)
+                              Call listLeague3v3.Add(Team)
+                            End If
+                          Case eSc2RanksBracket._4V4T, eSc2RanksBracket._4V4R
+                            If Team.Team.League = Player.Highest4V4League Then
+                              If Team.DivisionRank < Player.Highest4V4Rank Then Player.Highest4V4Rank = Team.DivisionRank
+                            ElseIf Team.Team.League > Player.Highest4V4League Then
+                              Player.Highest4V4League = Team.Team.League
+                              Player.Highest4V4Rank = Team.DivisionRank
+                            End If
+
+                            If (Not dictLeague4v4.ContainsKey(Team.Team.Division.ID)) Then
+                              Call dictLeague4v4.Add(Team.Team.Division.ID, Team)
+                              Call listLeague4v4.Add(Team)
+                            End If
+                        End Select
+                      End If
+                    Next i
                   End If
-                Next i
-              End If
-            Next d
+                Next d
+              Loop
+
+              Call .Dispose()
+            End With
           Next Bracket
 
           Call RankService.Dispose()
@@ -458,7 +428,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
               Else
                 Call SbAchievements.OpenCell(CssAlternateRow0, CssPointsCell)
               End If
-              Call SbAchievements.Append(.Character.AchievementPoint.ToString("N0"))
+              Call SbAchievements.Append(.Character.AchievementPoints.ToString("N0"))
               Call SbAchievements.CloseCell()
 
               Dim Tag As String
@@ -570,6 +540,205 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
       Return (Ex Is Nothing)
     End Function
+
+#Region "Paged Calling"
+
+#Region "Class PagedCall"
+
+    Private MustInherit Class PagedCall(Of TResponse As Sc2RanksBaseResult)
+
+      Protected MustOverride Function iExecute(ByVal Limit As Int32,
+                                               ByVal Page As Int32,
+                                               ByRef Response As TResponse) As Exception
+
+      Protected MustOverride Function iGetItemCount() As Int32
+
+      Protected MustOverride Function iGetItemsReceivedCount() As Int32
+
+      Public Function Execute(ByVal Limit As Int32,
+                              ByVal Page As Int32,
+                              ByRef Response As TResponse) As Exception
+        Return Me.iExecute(Limit, Page, Response)
+      End Function
+
+      Public Function GetItemCount() As Int32
+        Return Me.iGetItemCount()
+      End Function
+
+      Public Function GetItemsReceivedCount() As Int32
+        Return Me.iGetItemsReceivedCount()
+      End Function
+    End Class
+
+#End Region
+
+#Region "Class GetCustomDivisionPagedCall"
+
+    Private NotInheritable Class GetCustomDivisionPagedCall
+      Inherits PagedCall(Of Sc2RanksCustomDivisionCharactersResult)
+
+      Private ReadOnly RankService As Sc2RanksService
+      Private ReadOnly CustomDivisionID As String
+      Private ReadOnly IgnoreCache As Boolean
+      Private m_Response As Sc2RanksCustomDivisionCharactersResult
+
+      Public Sub New(ByVal RankService As Sc2RanksService,
+                     ByVal CustomDivisionID As String,
+                     ByVal IgnoreCache As Boolean)
+        Call MyBase.New()
+
+        Me.m_Response = Nothing
+
+        Me.RankService = RankService
+        Me.CustomDivisionID = CustomDivisionID
+        Me.IgnoreCache = IgnoreCache
+      End Sub
+
+      Protected Overrides Function iExecute(ByVal Limit As Int32,
+                                            ByVal Page As Int32,
+                                            ByRef Response As Sc2RanksCustomDivisionCharactersResult) As Exception
+        Response = Nothing
+        Dim Ex As Exception
+        Ex = Me.RankService.GetCustomDivisionCharacters(CustomDivisionID, eSc2RanksRegion.Global, Response, Limit, Page, Me.IgnoreCache)
+
+        If (Ex Is Nothing) Then Me.m_Response = Response
+
+        Return Ex
+      End Function
+
+      Protected Overrides Function iGetItemCount() As Int32
+        If (Me.m_Response IsNot Nothing) Then
+          Return Me.m_Response.MemberCount
+        Else
+          Return 1
+        End If
+      End Function
+
+      Protected Overrides Function iGetItemsReceivedCount() As Integer
+        If (Me.m_Response IsNot Nothing) Then
+          Return Me.m_Response.Characters.Length
+        Else
+          Return 0
+        End If
+      End Function
+    End Class
+
+#End Region
+
+#Region "Class GetCustomDivisionTeamsPagedCall"
+
+    Private NotInheritable Class GetCustomDivisionTeamsPagedCall
+      Inherits PagedCall(Of Sc2RanksCustomDivisionTeamsResult)
+
+      Private ReadOnly RankService As Sc2RanksService
+      Private ReadOnly CustomDivisionID As String
+      Private ReadOnly Expansion As eSc2RanksExpansion
+      Private ReadOnly Bracket As eSc2RanksBracket
+      Private ReadOnly IgnoreCache As Boolean
+      Private m_Response As Sc2RanksCustomDivisionTeamsResult
+
+      Public Sub New(ByVal RankService As Sc2RanksService,
+                     ByVal CustomDivisionID As String,
+                     ByVal Expansion As eSc2RanksExpansion,
+                     ByVal Bracket As eSc2RanksBracket,
+                     ByVal IgnoreCache As Boolean)
+        Call MyBase.New()
+
+        Me.m_Response = Nothing
+
+        Me.RankService = RankService
+        Me.CustomDivisionID = CustomDivisionID
+        Me.Expansion = Expansion
+        Me.Bracket = Bracket
+        Me.IgnoreCache = IgnoreCache
+      End Sub
+
+      Protected Overrides Function iExecute(ByVal Limit As Int32,
+                                            ByVal Page As Int32,
+                                            ByRef Response As Sc2RanksCustomDivisionTeamsResult) As Exception
+        Response = Nothing
+        Dim Ex As Exception
+        Ex = Me.RankService.GetCustomDivisionTeams(CustomDivisionID, eSc2RanksRankRegion.Global, Me.Expansion, Me.Bracket, eSc2RanksLeague.All, Response, Nothing, Limit, Page, Me.IgnoreCache)
+
+        If (Ex Is Nothing) Then Me.m_Response = Response
+
+        Return Ex
+      End Function
+
+      Protected Overrides Function iGetItemCount() As Int32
+        If (Me.m_Response IsNot Nothing) Then
+          Return Me.m_Response.MemberCount
+        Else
+          Return 1
+        End If
+      End Function
+
+      Protected Overrides Function iGetItemsReceivedCount() As Integer
+        If (Me.m_Response IsNot Nothing) Then
+          Return Me.m_Response.Teams.Length
+        Else
+          Return 0
+        End If
+      End Function
+    End Class
+
+#End Region
+
+    Private Shared Function ExecutePagedCall(Of TPagedCall As PagedCall(Of TResponse), TResponse As Sc2RanksBaseResult)(ByVal Key As TKey,
+                                                                                                                        ByVal LastProgress As Double,
+                                                                                                                        ByVal [Call] As TPagedCall,
+                                                                                                                        ByVal Limit As Int32,
+                                                                                                                        ByRef [Try] As Int32,
+                                                                                                                        ByVal MaxTries As Int32,
+                                                                                                                        ByVal RetryWaitTime As TimeSpan,
+                                                                                                                        ByVal ReportProgress As procReportProgress,
+                                                                                                                        ByVal OnCancelPending As procOnCancelPending(Of TKey),
+                                                                                                                        ByRef ResponseList As IList(Of TResponse)) As Exception
+      Dim Ex As Exception = Nothing
+      Dim iResponses As New List(Of TResponse)
+      Dim iResponse As TResponse = Nothing
+      Dim Success As Boolean = False
+      Dim Page As Int32 = 1
+      Dim ItemsReceived As Int32
+      Dim ItemsReceivedLastCall As Int32
+
+      If ([Try] < 0) Then [Try] = 0
+      If (MaxTries < 0) Then MaxTries = 1
+      If (Limit > Sc2RanksService.MaxRequestLimit) Then Limit = Sc2RanksService.MaxRequestLimit
+
+      [Try] += 1
+
+      Do Until Success OrElse ([Try] > MaxTries)
+        Ex = [Call].Execute(Limit, Page, iResponse)
+
+        If (Ex Is Nothing) Then
+          ItemsReceivedLastCall = [Call].GetItemsReceivedCount
+          ItemsReceived += ItemsReceivedLastCall
+          If (ItemsReceivedLastCall < Limit) OrElse ([Call].GetItemCount() <= ItemsReceived) Then Success = True
+
+          Page += 1
+          Call iResponses.Add(iResponse)
+          If ReportProgress IsNot Nothing Then Call ReportProgress.Invoke(Nothing, LastProgress, eProgressBarState.Normal)
+        Else
+          Success = False
+          [Try] += 1
+
+          Call Trace.WriteLine(String.Format("Waiting for next try in {0} seconds.", RetryWaitTime.ToString))
+          If (Ex IsNot Nothing) AndAlso (ReportProgress IsNot Nothing) Then Call ReportProgress.Invoke(Nothing, LastProgress, eProgressBarState.Paused)
+
+          Call Sleep(Of TKey)(RetryWaitTime, Key, OnCancelPending)
+        End If
+      Loop
+
+      [Try] = 0
+      ResponseList = iResponses
+
+      If ([Try] >= MaxTries) Then Ex = New Exception("Call failed, number of retries exceeded.")
+
+      Return Ex
+    End Function
+
+#End Region
 
     Public Shared Sub GetRaceImage(ByVal Race As eSc2RanksRace,
                                    <Out()> ByRef CssClass As String)
@@ -704,7 +873,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
       Dim CssClass As String = Nothing
       Dim AlternateText As String = Nothing
       Dim IsAlternateRow As Boolean = False
-      Dim ClanTag As String = Nothing
+      Dim ClanTag As String
 
       If (SB Is Nothing) Then
         Ex = New ArgumentNullException("SB")
