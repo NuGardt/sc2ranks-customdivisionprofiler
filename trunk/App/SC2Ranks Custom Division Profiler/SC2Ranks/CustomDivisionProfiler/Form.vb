@@ -330,7 +330,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
         Me.m_Config.CustomDivisionID = CustomDivisionID
         Call Me.errProvider.SetError(Me.txtURL, Nothing)
       Else
-        Call Me.errProvider.SetError(Me.txtURL, "Invalid ID or URL" + vbCrLf + "ID Example: 51e945ea69d5380d9c000002" + vbCrLf + "URL Example: http://www.sc2ranks.com/c/7085/handle-with-care")
+        Call Me.errProvider.SetError(Me.txtURL, "Invalid ID or URL" + vbCrLf + "ID Example: 51e882c969d5386f5900cac4" + vbCrLf + "URL Example: http://www.sc2ranks.com/cdiv/51e882c969d5386f5900cac4/handle-with-care")
       End If
 
       Call Me.UpdateCurrentCustomDivisionIDLabel()

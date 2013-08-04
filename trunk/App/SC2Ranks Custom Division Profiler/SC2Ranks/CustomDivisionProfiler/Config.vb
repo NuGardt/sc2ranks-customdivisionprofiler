@@ -120,8 +120,16 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Private m_ShowFavouriteRace As Boolean
     Private m_ShowClanTag As Boolean
 
-    'Expansion
+    'Ranking Options
     Private m_Expansion As eSc2RanksExpansion
+    Private m_Load1V1 As Boolean
+    Private m_Load2V2T As Boolean
+    Private m_Load2V2R As Boolean
+    Private m_Load3V3T As Boolean
+    Private m_Load3V3R As Boolean
+    Private m_Load4V4T As Boolean
+    Private m_Load4V4R As Boolean
+    Private m_AchievementRankingOnlyWhenRanked As Boolean
 
     'Ignore Cache
     Private m_IgnoreCacheGetCustomDivision As Boolean
@@ -180,6 +188,14 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
       'Expansion
       Me.m_Expansion = DefaultExpansion
+      Me.m_Load1V1 = True
+      Me.m_Load2V2T = True
+      Me.m_Load2V2R = True
+      Me.m_Load3V3T = True
+      Me.m_Load3V3R = True
+      Me.m_Load4V4T = True
+      Me.m_Load4V4R = True
+      Me.m_AchievementRankingOnlyWhenRanked = True
 
       'Ignore Cache
       Me.m_IgnoreCacheGetCustomDivision = DefaultIgnoreCacheGetCustomDivision
@@ -794,19 +810,131 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
 #End Region
 
-#Region "Expansion"
+#Region "Ranking Options"
 
     <DataMember(Name := "Expansion")>
     <DefaultValue(DefaultExpansion)>
     <DisplayName("Expansion")>
     <Description("Choose the expansion.")>
-    <Category("Expansion")>
+    <Category("Ranking Options")>
     Public Property Expansion As eSc2RanksExpansion Implements IConfig.Expansion
       Get
         Return Me.m_Expansion
       End Get
       Set(Value As eSc2RanksExpansion)
         Me.m_Expansion = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "AchievementRankingOnlyWhenRanked")>
+    <DefaultValue(True)>
+    <DisplayName("Achievement Ranking Only When Ranked")>
+    <Description("A character only gets ranked in achievements when ranked in at least 1 selected bracket.")>
+    <Category("Ranking Options")>
+    Public Property AchievementRankingOnlyWhenRanked As Boolean Implements IConfig.AchievementRankingOnlyWhenRanked
+      Get
+        Return Me.m_AchievementRankingOnlyWhenRanked
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_AchievementRankingOnlyWhenRanked = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load1v1Bracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 1v1 Bracket")>
+    <Description("Load data for 1v1 bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load1V1 As Boolean Implements IConfig.Load1V1
+      Get
+        Return Me.m_Load1V1
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load1V1 = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load2v2RBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 2v2R Bracket")>
+    <Description("Load data for 2v2 random team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load2V2R As Boolean Implements IConfig.Load2V2R
+      Get
+        Return Me.m_Load2V2R
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load2V2R = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load2v2TBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 2v2T Bracket")>
+    <Description("Load data for 2v2 team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load2V2T As Boolean Implements IConfig.Load2V2T
+      Get
+        Return Me.m_Load2V2T
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load2V2T = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load3v3RBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 3v3R Bracket")>
+    <Description("Load data for 3v3 random team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load3V3R As Boolean Implements IConfig.Load3V3R
+      Get
+        Return Me.m_Load3V3R
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load3V3R = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load3v3TBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 3v3T Bracket")>
+    <Description("Load data for 3v3 team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load3V3T As Boolean Implements IConfig.Load3V3T
+      Get
+        Return Me.m_Load3V3T
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load3V3T = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load4v4RBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 4v4R Bracket")>
+    <Description("Load data for 4v4 random team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load4V4R As Boolean Implements IConfig.Load4V4R
+      Get
+        Return Me.m_Load4V4R
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load4V4R = Value
+      End Set
+    End Property
+
+    <DataMember(Name := "Load4v4TBracket")>
+    <DefaultValue(True)>
+    <DisplayName("Load 4v4T Bracket")>
+    <Description("Load data for 4v4 team bracket ranking.")>
+    <Category("Ranking Options")>
+    Public Property Load4V4T As Boolean Implements IConfig.Load4V4T
+      Get
+        Return Me.m_Load4V4T
+      End Get
+      Set(ByVal Value As Boolean)
+        Me.m_Load4V4T = Value
       End Set
     End Property
 

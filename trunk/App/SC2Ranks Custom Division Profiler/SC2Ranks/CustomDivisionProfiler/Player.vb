@@ -40,6 +40,24 @@ Namespace SC2Ranks.CustomDivisionProfiler
       Call MyBase.New(Character.BattleNetID, Character.Region, Character.AchievementPoints)
 
       Me.Character = Character
+
+      Me.Highest1V1League = eSc2RanksLeague.All
+      Me.Highest1V1Rank = Nothing
+
+      Me.Highest2V2League = eSc2RanksLeague.All
+      Me.Highest2V2Rank = Nothing
+
+      Me.Highest3V3League = eSc2RanksLeague.All
+      Me.Highest3V3Rank = Nothing
+
+      Me.Highest4V4League = eSc2RanksLeague.All
+      Me.Highest4V4Rank = Nothing
     End Sub
+
+    Public ReadOnly Property IsRankedSomewhere As Boolean
+      Get
+        Return (Me.Highest1V1League <> eSc2RanksLeague.All) OrElse (Me.Highest2V2League <> eSc2RanksLeague.All) OrElse (Me.Highest3V3League <> eSc2RanksLeague.All) OrElse (Me.Highest4V4League <> eSc2RanksLeague.All)
+      End Get
+    End Property
   End Class
 End Namespace

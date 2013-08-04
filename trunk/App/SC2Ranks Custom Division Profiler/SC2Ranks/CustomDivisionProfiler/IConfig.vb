@@ -79,8 +79,24 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Property ShowClanTag As Boolean
 
-    'Expansion
+    'Ranking Options
     Property Expansion As eSc2RanksExpansion
+
+    Property Load1V1 As Boolean
+
+    Property Load2V2T As Boolean
+
+    Property Load2V2R As Boolean
+
+    Property Load3V3T As Boolean
+
+    Property Load3V3R As Boolean
+
+    Property Load4V4T As Boolean
+
+    Property Load4V4R As Boolean
+
+    Property AchievementRankingOnlyWhenRanked As Boolean
 
     'Ignore Cache
     Property IgnoreCacheGetCustomDivision As Boolean
