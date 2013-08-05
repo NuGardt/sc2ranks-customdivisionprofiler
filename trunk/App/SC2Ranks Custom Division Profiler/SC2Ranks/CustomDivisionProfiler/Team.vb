@@ -19,9 +19,9 @@ Imports NuGardt.SC2Ranks.API.Result.Element
 
 Namespace SC2Ranks.CustomDivisionProfiler
   Friend Class Team
-    Public ReadOnly Team As Sc2RanksCharacterTeamElement
+    Public ReadOnly Team As Sc2RanksTeamCharacterListElement
 
-    Public Sub New(ByVal Team As Sc2RanksCharacterTeamElement)
+    Public Sub New(ByVal Team As Sc2RanksTeamCharacterListElement)
       Me.Team = Team
     End Sub
 
@@ -41,7 +41,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
       If (Me.Team.Division Is Nothing) OrElse (Not Me.Team.Division.Rank.HasValue) Then
         Return Int32.MaxValue
       Else
-        Return Me.Team.Division.Rank.Value
+        Return Convert.ToInt32(Me.Team.Division.Rank.Value)
       End If
     End Function
 

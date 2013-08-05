@@ -224,8 +224,8 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           'Get Custom Division and enumerate all members
           Call Trace.WriteLine("Downloading custom division data...")
 
-          Dim GCDRList As IList(Of Sc2RanksCustomDivisionCharactersResult) = Nothing
-          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksCustomDivisionCharactersResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
+          Dim GCDRList As IList(Of Sc2RanksCustomDivisionCharacterListResult) = Nothing
+          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksCustomDivisionCharacterListResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
           If (Ex IsNot Nothing) Then Exit Try
 
           With GCDRList.GetEnumerator()
@@ -591,12 +591,12 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 #Region "Class GetCustomDivisionPagedCall"
 
     Private NotInheritable Class GetCustomDivisionPagedCall
-      Inherits PagedCall(Of Sc2RanksCustomDivisionCharactersResult)
+      Inherits PagedCall(Of Sc2RanksCustomDivisionCharacterListResult)
 
       Private ReadOnly RankService As Sc2RanksService
       Private ReadOnly CustomDivisionID As String
       Private ReadOnly IgnoreCache As Boolean
-      Private m_Response As Sc2RanksCustomDivisionCharactersResult
+      Private m_Response As Sc2RanksCustomDivisionCharacterListResult
 
       Public Sub New(ByVal RankService As Sc2RanksService,
                      ByVal CustomDivisionID As String,
@@ -612,10 +612,10 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
       Protected Overrides Function iExecute(ByVal Limit As Int32,
                                             ByVal Page As Int32,
-                                            ByRef Response As Sc2RanksCustomDivisionCharactersResult) As Exception
+                                            ByRef Response As Sc2RanksCustomDivisionCharacterListResult) As Exception
         Response = Nothing
         Dim Ex As Exception
-        Ex = Me.RankService.GetCustomDivisionCharacters(CustomDivisionID, eSc2RanksRegion.Global, Response, Limit, Page, Me.IgnoreCache)
+        Ex = Me.RankService.GetCustomDivisionCharacterList(CustomDivisionID, eSc2RanksRegion.Global, Response, Limit, Page, Me.IgnoreCache)
 
         If (Ex Is Nothing) Then Me.m_Response = Response
 
@@ -674,7 +674,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                                             ByRef Response As Sc2RanksCustomDivisionTeamsResult) As Exception
         Response = Nothing
         Dim Ex As Exception
-        Ex = Me.RankService.GetCustomDivisionTeams(CustomDivisionID, eSc2RanksRankRegion.Global, Me.Expansion, Me.Bracket, eSc2RanksLeague.All, Response, Nothing, Limit, Page, Me.IgnoreCache)
+        Ex = Me.RankService.GetCustomDivisionTeamList(CustomDivisionID, eSc2RanksRankRegion.Global, Me.Expansion, Me.Bracket, eSc2RanksLeague.All, Response, Nothing, Limit, Page, Me.IgnoreCache)
 
         If (Ex Is Nothing) Then Me.m_Response = Response
 
