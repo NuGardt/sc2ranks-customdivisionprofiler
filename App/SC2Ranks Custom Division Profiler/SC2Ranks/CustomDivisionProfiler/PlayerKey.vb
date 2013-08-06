@@ -28,13 +28,13 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
 #Region "Compare & Equals"
 
-    Private Function CompareTo(ByVal Other As PlayerKey) As Integer Implements IComparable(Of PlayerKey).CompareTo
-      Return Me.Compare(Me, other)
+    Private Function CompareTo(ByVal Other As PlayerKey) As Int32 Implements IComparable(Of PlayerKey).CompareTo
+      Return Me.Compare(Me, Other)
     End Function
 
     Private Function Compare(ByVal X As PlayerKey,
-                             ByVal Y As PlayerKey) As Integer
-      Dim Erg As Integer
+                             ByVal Y As PlayerKey) As Int32
+      Dim Erg As Int32
 
       If X IsNot Nothing Then
         If Y IsNot Nothing Then
@@ -53,8 +53,8 @@ Namespace SC2Ranks.CustomDivisionProfiler
     End Function
 
     Public Shared Function CompareByAchievementPoints(ByVal X As PlayerKey,
-                                                      ByVal Y As PlayerKey) As Integer
-      Dim Erg As Integer
+                                                      ByVal Y As PlayerKey) As Int32
+      Dim Erg As Int32
 
       If X IsNot Nothing Then
         If Y IsNot Nothing Then
@@ -70,8 +70,8 @@ Namespace SC2Ranks.CustomDivisionProfiler
     End Function
 
     Public Shared Function CompareByAchievementPointsInverted(ByVal X As PlayerKey,
-                                                              ByVal Y As PlayerKey) As Integer
-      Dim Erg As Integer
+                                                              ByVal Y As PlayerKey) As Int32
+      Dim Erg As Int32
 
       If X IsNot Nothing Then
         If Y IsNot Nothing Then
