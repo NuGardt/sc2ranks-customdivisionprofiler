@@ -16,13 +16,13 @@
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '
 Imports NuGardt.SC2Ranks.API
-Imports NuGardt.SC2Ranks.API.Result
+Imports NuGardt.SC2Ranks.API.Result.Element
 
 Namespace SC2Ranks.CustomDivisionProfiler
   Friend Class Player
     Inherits PlayerKey
 
-    Public Character As Sc2RanksCharacterResult
+    Public Character As Sc2RanksCharacterExtended
 
     Public Highest1V1League As eSc2RanksLeague
     Public Highest1V1Rank As Integer
@@ -36,7 +36,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Public Highest4V4League As eSc2RanksLeague
     Public Highest4V4Rank As Integer
 
-    Public Sub New(ByVal Character As Sc2RanksCharacterResult)
+    Public Sub New(ByVal Character As Sc2RanksCharacterExtended)
       Call MyBase.New(Character.BattleNetID, Character.Region, Character.AchievementPoints)
 
       Me.Character = Character
