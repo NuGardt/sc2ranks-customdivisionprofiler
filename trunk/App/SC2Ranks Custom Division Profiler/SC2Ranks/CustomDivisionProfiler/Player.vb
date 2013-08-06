@@ -25,16 +25,19 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Public Character As Sc2RanksCharacterExtended
 
     Public Highest1V1League As eSc2RanksLeague
-    Public Highest1V1Rank As Integer
+    Public Highest1V1Rank As Int32
 
     Public Highest2V2League As eSc2RanksLeague
-    Public Highest2V2Rank As Integer
+    Public Highest2V2Rank As Int32
 
     Public Highest3V3League As eSc2RanksLeague
-    Public Highest3V3Rank As Integer
+    Public Highest3V3Rank As Int32
 
     Public Highest4V4League As eSc2RanksLeague
-    Public Highest4V4Rank As Integer
+    Public Highest4V4Rank As Int32
+
+    Public FavouriteRace As eSc2RanksRace
+    Public RaceFromBracket As eSc2RanksBracket
 
     Public Sub New(ByVal Character As Sc2RanksCharacterExtended)
       Call MyBase.New(Character.BattleNetID, Character.Region, Character.AchievementPoints)
@@ -52,6 +55,9 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
       Me.Highest4V4League = eSc2RanksLeague.All
       Me.Highest4V4Rank = Nothing
+
+      Me.FavouriteRace = eSc2RanksRace.Random
+      Me.RaceFromBracket = eSc2RanksBracket._4V4T
     End Sub
 
     Public ReadOnly Property IsRankedSomewhere As Boolean

@@ -36,7 +36,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Property DisableAutosave As Boolean
 
-    Property RetryCount As Integer
+    Property RetryCount As Int32
 
     Property RetryWaitTime As TimeSpan
 

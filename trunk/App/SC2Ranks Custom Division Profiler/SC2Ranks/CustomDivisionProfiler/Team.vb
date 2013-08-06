@@ -45,7 +45,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
       End If
     End Function
 
-    Public Function WorldRank() As Integer
+    Public Function WorldRank() As Int32
       If (Me.Team.Rankings Is Nothing) OrElse Me.Team.Rankings.World = 0 Then
         Return Integer.MaxValue
       Else
@@ -53,7 +53,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
       End If
     End Function
 
-    Public Function RegionRank() As Integer
+    Public Function RegionRank() As Int32
       If (Me.Team.Rankings Is Nothing) OrElse Me.Team.Rankings.Region = 0 Then
         Return Integer.MaxValue
       Else
@@ -62,8 +62,8 @@ Namespace SC2Ranks.CustomDivisionProfiler
     End Function
 
     Public Shared Function CompareByLeagueRegionRankInverted(ByVal X As Team,
-                                                             ByVal Y As Team) As Integer
-      Dim Erg As Integer
+                                                             ByVal Y As Team) As Int32
+      Dim Erg As Int32
 
       If X IsNot Nothing Then
         If Y IsNot Nothing Then

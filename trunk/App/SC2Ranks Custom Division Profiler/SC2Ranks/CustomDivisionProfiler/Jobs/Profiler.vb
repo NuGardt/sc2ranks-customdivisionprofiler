@@ -15,8 +15,8 @@
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '
-Imports System.Collections.Generic
 Imports System.Runtime.InteropServices
+Imports System.Collections.Generic
 Imports System.IO
 Imports System.Linq
 Imports NuGardt.SC2Ranks.Helper
@@ -34,8 +34,8 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     Private ReadOnly m_ReportProgress As procReportProgress
     Private ReadOnly m_OnComplete As procOnComplete
 
-    Private Const CellSpacing As Integer = 2
-    Private Const CellPadding As Integer = 0
+    Private Const CellSpacing As Int32 = 2
+    Private Const CellPadding As Int32 = 0
 
     Private Const HeaderRank As String = "#"
     Private Const HeaderLastUpdate As String = "Last Update"
@@ -105,6 +105,8 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     Private Builder4V4 As HtmlStringBuilder
     Private GeneratedInSeconds As Double
 
+    Public CreditsUsed As Int32
+
     Public Output As String
 
     Public Sub New(ByVal ProcessTag As TKey,
@@ -122,6 +124,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
       Me.Builder3V3 = New HtmlStringBuilder
       Me.Builder4V4 = New HtmlStringBuilder
       Me.GeneratedInSeconds = 0
+      Me.CreditsUsed = 0
 
       Me.Output = Nothing
     End Sub
@@ -137,7 +140,8 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
     Public Overrides Sub Run()
       Dim Ex As Exception = Nothing
-      If Me.GenerateProfile(BuilderAchievements, Builder1V1, Builder2V2, Builder3V3, Builder4V4, GeneratedInSeconds, Me.m_ReportProgress, Ex) Then
+
+      If Me.GenerateProfile(BuilderAchievements, Builder1V1, Builder2V2, Builder3V3, Builder4V4, GeneratedInSeconds, Me.m_ReportProgress, CreditsUsed, Ex) Then
         Me.Output = Me.Config.Template.Replace("$achievement$", BuilderAchievements.ToString).Replace("$1v1$", Builder1V1.ToString).Replace("$2v2$", Builder2V2.ToString).Replace("$3v3$", Builder3V3.ToString).Replace("$4v4$", Builder4V4.ToString).Replace("$version$", String.Format("v{0}", My.Application.Info.Version)).Replace("$customdescription$", Me.Config.CustomDescription).Replace("$generatedby$", WindowsIdentity.GetCurrent.Name).Replace("$generatedin$", GeneratedInSeconds.ToString("N3")).Replace("$timestamp$", Date.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff") + " UTC")
       End If
 
@@ -153,7 +157,9 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                                      ByRef Sb4V4 As HtmlStringBuilder,
                                      ByRef GeneratedInSeconds As Double,
                                      ByVal ReportProgress As procReportProgress,
-                                     ByRef Ex As Exception) As Boolean
+                                     <Out> CreditsUsed As Int32,
+                                     <Out> ByRef Ex As Exception) As Boolean
+      CreditsUsed = 0
       Ex = Nothing
 
       If SbAchievements Is Nothing Then
@@ -195,9 +201,9 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           Dim listLeague4v4 As New List(Of Team)
 
           Dim Player As Player = Nothing
-          Dim dMax As Integer
-          Dim iMax As Integer
-          Dim [Try] As Integer = 0
+          Dim dMax As Int32
+          Dim iMax As Int32
+          Dim [Try] As Int32 = 0
           Dim IsAlternateRow As Boolean
           Dim AlternateText As String = Nothing
 
@@ -234,8 +240,11 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
             Do While .MoveNext()
               Dim Character As Sc2RanksCharacterExtended
+
+              CreditsUsed += .Current.CreditsUsed
+
               dMax = .Current.Characters.Length - 1
-              For d As Integer = 0 To dMax
+              For d As Int32 = 0 To dMax
                 Character = .Current.Characters(d)
 
                 'Only list a player once incase of duplicate entries.
@@ -270,9 +279,10 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
               Call .Reset()
 
               Do While .MoveNext()
+                CreditsUsed += .Current.CreditsUsed
 
                 dMax = .Current.Teams.Length - 1
-                For d As Integer = 0 To dMax
+                For d As Int32 = 0 To dMax
                   Team = New Team(.Current.Teams(d))
 
                   If (Team.Team.Division IsNot Nothing) Then
@@ -283,6 +293,11 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                       End With
 
                       If CustomDivisionPlayers.TryGetValue(PlayerKey, Player) Then
+                        If (Team.Team.Characters.Length > 0) AndAlso (Player.RaceFromBracket >= Team.Team.Bracket) Then
+                          Player.RaceFromBracket = Team.Team.Bracket
+                          Player.FavouriteRace = Team.Team.Characters(0).Race
+                        End If
+
                         Select Case Team.Team.Bracket
                           Case eSc2RanksBracket._1V1
                             If Team.Team.League = Player.Highest1V1League Then
@@ -455,8 +470,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                   Tag = Nothing
                 End If
 
-                'ToDo: Favourite Race
-                Call CreatePlayerCell(.Character.Name, Tag, eSc2RanksRace.Random, .Character.Url, SbAchievements, Me.Config, IsAlternateRow)
+                Call CreatePlayerCell(.Character.Name, Tag, .FavouriteRace, .Character.Url, SbAchievements, Me.Config, IsAlternateRow)
 
                 Call GetLeaugeImage(.Highest1V1League, .Highest1V1Rank, AlternateText, CssClass)
 
@@ -631,7 +645,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
         End If
       End Function
 
-      Protected Overrides Function iGetItemsReceivedCount() As Integer
+      Protected Overrides Function iGetItemsReceivedCount() As Int32
         If (Me.m_Response IsNot Nothing) Then
           Return Me.m_Response.Characters.Length
         Else
@@ -690,7 +704,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
         End If
       End Function
 
-      Protected Overrides Function iGetItemsReceivedCount() As Integer
+      Protected Overrides Function iGetItemsReceivedCount() As Int32
         If (Me.m_Response IsNot Nothing) Then
           Return Me.m_Response.Teams.Length
         Else
@@ -773,7 +787,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     End Sub
 
     Public Shared Sub GetLeaugeImage(ByVal Leauge As eSc2RanksLeague,
-                                     ByVal Rank As Integer,
+                                     ByVal Rank As Int32,
                                      <Out()> ByRef AlternateText As String,
                                      <Out()> ByRef CssClass As String)
       Select Case Leauge
@@ -966,7 +980,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           Call SB.CloseCell()
         End If
 
-        For i As Integer = 1 To PlayersInBracket
+        For i As Int32 = 1 To PlayersInBracket
           Call SB.OpenCell(CssHeader, CssPlayerHeader)
           Call SB.Append("<b>" + HeaderPlayer + "</b>")
           Call SB.CloseCell()
@@ -1110,7 +1124,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             End If
 
             Dim dMax As Int32 = PlayersInBracket - 1
-            For d As Integer = 0 To dMax
+            For d As Int32 = 0 To dMax
               If (.Team.Characters IsNot Nothing) AndAlso d <= .Team.Characters.Length - 1 Then
 
                 With .Team.Characters(d)

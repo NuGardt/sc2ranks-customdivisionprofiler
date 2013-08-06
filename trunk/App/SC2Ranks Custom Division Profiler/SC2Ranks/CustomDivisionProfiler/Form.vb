@@ -253,10 +253,10 @@ Namespace SC2Ranks.CustomDivisionProfiler
               Call .Dispose()
             End With
 
-            If Not Me.m_Config.AutoClose Then Call MsgBox("Data received successfully!", MsgBoxStyle.Information)
+            If Not Me.m_Config.AutoClose Then Call MsgBox(String.Format("Data received successfully!{0}Credits used: {1}", vbCrLf, Job.CreditsUsed.ToString()), MsgBoxStyle.Information)
             If (Not Me.m_Config.AutoClose) AndAlso (Not Me.m_Config.DisableAutoOpen) Then Call Diagnostics.Process.Start(Path)
           Else
-            If Not Me.m_Config.AutoClose Then Call MsgBox("Data received successfully!", MsgBoxStyle.Information)
+            If Not Me.m_Config.AutoClose Then Call MsgBox(String.Format("Data received successfully!{0}Credits used: {1}", vbCrLf, Job.CreditsUsed.ToString()), MsgBoxStyle.Information)
           End If
         Catch iEx As Exception
           If Verbose Then
@@ -356,8 +356,8 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
             If URL.Host.Contains("sc2ranks.com") Then
               Dim Path As String = URL.AbsolutePath
-              Dim StartIndex As Integer
-              Dim EndIndex As Integer
+              Dim StartIndex As Int32
+              Dim EndIndex As Int32
 
               StartIndex = Path.IndexOf(Prefix, StringComparison.InvariantCultureIgnoreCase)
 
