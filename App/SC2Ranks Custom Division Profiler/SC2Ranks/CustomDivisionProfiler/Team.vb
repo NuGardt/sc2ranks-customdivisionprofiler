@@ -19,9 +19,9 @@ Imports NuGardt.SC2Ranks.API.Result.Element
 
 Namespace SC2Ranks.CustomDivisionProfiler
   Friend Class Team
-    Public ReadOnly Team As Sc2RanksTeamCharacterListElement
+    Public ReadOnly Team As Sc2RanksTeamExtended
 
-    Public Sub New(ByVal Team As Sc2RanksTeamCharacterListElement)
+    Public Sub New(ByVal Team As Sc2RanksTeamExtended)
       Me.Team = Team
     End Sub
 

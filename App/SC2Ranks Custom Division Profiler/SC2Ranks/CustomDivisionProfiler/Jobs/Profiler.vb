@@ -20,6 +20,7 @@ Imports System.Runtime.InteropServices
 Imports System.IO
 Imports System.Linq
 Imports NuGardt.SC2Ranks.Helper
+Imports NuGardt.SC2Ranks.API.Result.Element
 Imports NuGardt.SC2Ranks.API
 Imports NuGardt.Core
 Imports NuGardt.Core.Process
@@ -217,22 +218,22 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             Exit Try
           End If
 
-          Ex = Sc2RanksService.CreateInstance(Config.ApiKey, CacheStream, Me.Config, RankService)
+          Ex = Sc2RanksService.CreateInstance(Config.ApiKey, RankService, CacheStream, Me.Config)
 
           If (Ex IsNot Nothing) Then Exit Try
 
           'Get Custom Division and enumerate all members
           Call Trace.WriteLine("Downloading custom division data...")
 
-          Dim GCDRList As IList(Of Sc2RanksCustomDivisionCharacterListResult) = Nothing
-          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksCustomDivisionCharacterListResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
+          Dim GCDRList As IList(Of Sc2RanksGetCustomDivisionCharacterListResult) = Nothing
+          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksGetCustomDivisionCharacterListResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetTeam), 50, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
           If (Ex IsNot Nothing) Then Exit Try
 
           With GCDRList.GetEnumerator()
             Call .Reset()
 
             Do While .MoveNext()
-              Dim Character As Sc2RanksCharacterResult
+              Dim Character As Sc2RanksCharacterExtended
               dMax = .Current.Characters.Length - 1
               For d As Integer = 0 To dMax
                 Character = .Current.Characters(d)
@@ -255,8 +256,8 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           For Each Bracket In Brackets
             Call Trace.WriteLine(String.Format("Downloading team(s) of custom division {0}.", Enums.BracketNotationBuffer.GetValue(Bracket)))
 
-            Dim CDTList As IList(Of Sc2RanksCustomDivisionTeamsResult) = Nothing
-            Ex = ExecutePagedCall(Of GetCustomDivisionTeamsPagedCall, Sc2RanksCustomDivisionTeamsResult)(Me.ProcessTag, (CallCount / TotalCalls) * 100, New GetCustomDivisionTeamsPagedCall(RankService, Me.Config.CustomDivisionID, Me.Config.Expansion, Bracket, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, CDTList)
+            Dim CDTList As IList(Of Sc2RanksGetCustomDivisionTeamListResult) = Nothing
+            Ex = ExecutePagedCall(Of GetCustomDivisionTeamsPagedCall, Sc2RanksGetCustomDivisionTeamListResult)(Me.ProcessTag, (CallCount / TotalCalls) * 100, New GetCustomDivisionTeamsPagedCall(RankService, Me.Config.CustomDivisionID, Me.Config.Expansion, Bracket, Me.Config.IgnoreCacheGetTeam), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, CDTList)
             If (Ex IsNot Nothing) Then Exit Try
 
             CallCount += 1
@@ -561,7 +562,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
 #Region "Class PagedCall"
 
-    Private MustInherit Class PagedCall(Of TResponse As Sc2RanksBaseResult)
+    Private MustInherit Class PagedCall(Of TResponse As ISc2RanksBaseResult)
 
       Protected MustOverride Function iExecute(ByVal Limit As Int32,
                                                ByVal Page As Int32,
@@ -591,12 +592,12 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 #Region "Class GetCustomDivisionPagedCall"
 
     Private NotInheritable Class GetCustomDivisionPagedCall
-      Inherits PagedCall(Of Sc2RanksCustomDivisionCharacterListResult)
+      Inherits PagedCall(Of Sc2RanksGetCustomDivisionCharacterListResult)
 
       Private ReadOnly RankService As Sc2RanksService
       Private ReadOnly CustomDivisionID As String
       Private ReadOnly IgnoreCache As Boolean
-      Private m_Response As Sc2RanksCustomDivisionCharacterListResult
+      Private m_Response As Sc2RanksGetCustomDivisionCharacterListResult
 
       Public Sub New(ByVal RankService As Sc2RanksService,
                      ByVal CustomDivisionID As String,
@@ -612,7 +613,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
       Protected Overrides Function iExecute(ByVal Limit As Int32,
                                             ByVal Page As Int32,
-                                            ByRef Response As Sc2RanksCustomDivisionCharacterListResult) As Exception
+                                            ByRef Response As Sc2RanksGetCustomDivisionCharacterListResult) As Exception
         Response = Nothing
         Dim Ex As Exception
         Ex = Me.RankService.GetCustomDivisionCharacterList(CustomDivisionID, eSc2RanksRegion.Global, Response, Limit, Page, Me.IgnoreCache)
@@ -644,14 +645,14 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 #Region "Class GetCustomDivisionTeamsPagedCall"
 
     Private NotInheritable Class GetCustomDivisionTeamsPagedCall
-      Inherits PagedCall(Of Sc2RanksCustomDivisionTeamsResult)
+      Inherits PagedCall(Of Sc2RanksGetCustomDivisionTeamListResult)
 
       Private ReadOnly RankService As Sc2RanksService
       Private ReadOnly CustomDivisionID As String
       Private ReadOnly Expansion As eSc2RanksExpansion
       Private ReadOnly Bracket As eSc2RanksBracket
       Private ReadOnly IgnoreCache As Boolean
-      Private m_Response As Sc2RanksCustomDivisionTeamsResult
+      Private m_Response As Sc2RanksGetCustomDivisionTeamListResult
 
       Public Sub New(ByVal RankService As Sc2RanksService,
                      ByVal CustomDivisionID As String,
@@ -671,7 +672,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
       Protected Overrides Function iExecute(ByVal Limit As Int32,
                                             ByVal Page As Int32,
-                                            ByRef Response As Sc2RanksCustomDivisionTeamsResult) As Exception
+                                            ByRef Response As Sc2RanksGetCustomDivisionTeamListResult) As Exception
         Response = Nothing
         Dim Ex As Exception
         Ex = Me.RankService.GetCustomDivisionTeamList(CustomDivisionID, eSc2RanksRankRegion.Global, Me.Expansion, Me.Bracket, eSc2RanksLeague.All, Response, Nothing, Limit, Page, Me.IgnoreCache)
@@ -700,16 +701,16 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
 
 #End Region
 
-    Private Shared Function ExecutePagedCall(Of TPagedCall As PagedCall(Of TResponse), TResponse As Sc2RanksBaseResult)(ByVal Key As TKey,
-                                                                                                                        ByVal LastProgress As Double,
-                                                                                                                        ByVal [Call] As TPagedCall,
-                                                                                                                        ByVal Limit As Int32,
-                                                                                                                        ByRef [Try] As Int32,
-                                                                                                                        ByVal MaxTries As Int32,
-                                                                                                                        ByVal RetryWaitTime As TimeSpan,
-                                                                                                                        ByVal ReportProgress As procReportProgress,
-                                                                                                                        ByVal OnCancelPending As procOnCancelPending(Of TKey),
-                                                                                                                        ByRef ResponseList As IList(Of TResponse)) As Exception
+    Private Shared Function ExecutePagedCall(Of TPagedCall As PagedCall(Of TResponse), TResponse As ISc2RanksBaseResult)(ByVal Key As TKey,
+                                                                                                                         ByVal LastProgress As Double,
+                                                                                                                         ByVal [Call] As TPagedCall,
+                                                                                                                         ByVal Limit As Int32,
+                                                                                                                         ByRef [Try] As Int32,
+                                                                                                                         ByVal MaxTries As Int32,
+                                                                                                                         ByVal RetryWaitTime As TimeSpan,
+                                                                                                                         ByVal ReportProgress As procReportProgress,
+                                                                                                                         ByVal OnCancelPending As procOnCancelPending(Of TKey),
+                                                                                                                         ByRef ResponseList As IList(Of TResponse)) As Exception
       Dim Ex As Exception = Nothing
       Dim iResponses As New List(Of TResponse)
       Dim iResponse As TResponse = Nothing
