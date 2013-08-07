@@ -78,9 +78,8 @@ Namespace SC2Ranks.CustomDivisionProfiler
     Public Const DefaultExpansion As eSc2RanksExpansion = eSc2RanksExpansion.HotS
 
     'Ignore Cache
-    Public Const DefaultIgnoreCacheGetCustomDivision As Boolean = True
-    Public Const DefaultIgnoreCacheGetBaseTeam As Boolean = False
-    Public Const DefaultIgnoreCacheGetTeam As Boolean = False
+    Public Const DefaultIgnoreCacheGetCustomDivision As Boolean = False
+    Public Const DefaultIgnoreCacheGetCustomDivisionTeamList As Boolean = False
 #End Region
 
     'API
@@ -133,8 +132,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     'Ignore Cache
     Private m_IgnoreCacheGetCustomDivision As Boolean
-    Private m_IgnoreCacheGetBaseTeam As Boolean
-    Private m_IgnoreCacheGetTeam As Boolean
+    Private m_IgnoreCacheGetCustomDivisionTeamList As Boolean
 
     'Cache Durations
     Private m_GetCustomDivisionTeamListCacheDuration As TimeSpan
@@ -198,8 +196,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
       'Ignore Cache
       Me.m_IgnoreCacheGetCustomDivision = DefaultIgnoreCacheGetCustomDivision
-      Me.m_IgnoreCacheGetBaseTeam = DefaultIgnoreCacheGetBaseTeam
-      Me.m_IgnoreCacheGetTeam = DefaultIgnoreCacheGetTeam
+      Me.m_IgnoreCacheGetCustomDivisionTeamList = DefaultIgnoreCacheGetCustomDivisionTeamList
 
       'Cache Duration
       Me.m_GetCustomDivisionTeamListCacheDuration = CacheConfig.DefaultGetCustomDivisionTeamListCacheDuration
@@ -954,31 +951,17 @@ Namespace SC2Ranks.CustomDivisionProfiler
       End Set
     End Property
 
-    <DataMember(Name := "IgnoreCacheGetBaseTeam")>
-    <DefaultValue(DefaultIgnoreCacheGetBaseTeam)>
-    <DisplayName("Get Player")>
-    <Description("Ignore cache information and redownload player information (achievement points, clan tag, etc.).")>
+    <DataMember(Name := "IgnoreCacheGetCustomDivisionTeamList")>
+    <DefaultValue(DefaultIgnoreCacheGetCustomDivisionTeamList)>
+    <DisplayName("Get Custom Division Team List")>
+    <Description("Ignore cache information and redownload teams for each bracket.")>
     <Category("Ignore Cache")>
-    Public Property IgnoreCacheGetBaseTeam As Boolean Implements IConfig.IgnoreCacheGetBaseTeam
+    Public Property IgnoreCacheGetCustomDivisionTeamList As Boolean Implements IConfig.IgnoreCacheGetCustomDivisionTeamList
       Get
-        Return Me.m_IgnoreCacheGetBaseTeam
+        Return Me.m_IgnoreCacheGetCustomDivisionTeamList
       End Get
       Set(ByVal Value As Boolean)
-        Me.m_IgnoreCacheGetBaseTeam = Value
-      End Set
-    End Property
-
-    <DataMember(Name := "IgnoreCacheGetTeam")>
-    <DefaultValue(DefaultIgnoreCacheGetTeam)>
-    <DisplayName("Get Team")>
-    <Description("Ignore cache information and redownload team information (1v1, 2v2, 2v2R, etc.).")>
-    <Category("Ignore Cache")>
-    Public Property IgnoreCacheGetTeam As Boolean Implements IConfig.IgnoreCacheGetTeam
-      Get
-        Return Me.m_IgnoreCacheGetTeam
-      End Get
-      Set(ByVal Value As Boolean)
-        Me.m_IgnoreCacheGetTeam = Value
+        Me.m_IgnoreCacheGetCustomDivisionTeamList = Value
       End Set
     End Property
 

@@ -101,9 +101,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
     'Ignore Cache
     Property IgnoreCacheGetCustomDivision As Boolean
 
-    Property IgnoreCacheGetBaseTeam As Boolean
-
-    Property IgnoreCacheGetTeam As Boolean
+    Property IgnoreCacheGetCustomDivisionTeamList As Boolean
 
     Sub Reset()
 
