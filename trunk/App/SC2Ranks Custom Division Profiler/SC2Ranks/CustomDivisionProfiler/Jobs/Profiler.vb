@@ -141,7 +141,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
     Public Overrides Sub Run()
       Dim Ex As Exception = Nothing
 
-      If Me.GenerateProfile(BuilderAchievements, Builder1V1, Builder2V2, Builder3V3, Builder4V4, GeneratedInSeconds, Me.m_ReportProgress, CreditsUsed, Ex) Then
+      If Me.GenerateProfile(BuilderAchievements, Builder1V1, Builder2V2, Builder3V3, Builder4V4, GeneratedInSeconds, Me.m_ReportProgress, Me.CreditsUsed, Ex) Then
         Me.Output = Me.Config.Template.Replace("$achievement$", BuilderAchievements.ToString).Replace("$1v1$", Builder1V1.ToString).Replace("$2v2$", Builder2V2.ToString).Replace("$3v3$", Builder3V3.ToString).Replace("$4v4$", Builder4V4.ToString).Replace("$version$", String.Format("v{0}", My.Application.Info.Version)).Replace("$customdescription$", Me.Config.CustomDescription).Replace("$generatedby$", WindowsIdentity.GetCurrent.Name).Replace("$generatedin$", GeneratedInSeconds.ToString("N3")).Replace("$timestamp$", Date.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff") + " UTC")
       End If
 
@@ -157,7 +157,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
                                      ByRef Sb4V4 As HtmlStringBuilder,
                                      ByRef GeneratedInSeconds As Double,
                                      ByVal ReportProgress As procReportProgress,
-                                     <Out> CreditsUsed As Int32,
+                                     <Out> ByRef CreditsUsed As Int32,
                                      <Out> ByRef Ex As Exception) As Boolean
       CreditsUsed = 0
       Ex = Nothing
