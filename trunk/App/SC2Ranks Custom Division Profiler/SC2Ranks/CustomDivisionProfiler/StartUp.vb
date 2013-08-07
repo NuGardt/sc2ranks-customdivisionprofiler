@@ -161,6 +161,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
           Call Trace.WriteLine("Profiling completed.")
         Else
           Call Trace.WriteLine("Profiling failed with no result output.")
+          If (tJob.Error IsNot Nothing) Then Call Trace.WriteLine(tJob.Error)
         End If
       End If
 

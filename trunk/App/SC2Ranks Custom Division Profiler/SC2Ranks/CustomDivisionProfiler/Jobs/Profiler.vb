@@ -646,7 +646,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
       End Function
 
       Protected Overrides Function iGetItemsReceivedCount() As Int32
-        If (Me.m_Response IsNot Nothing) Then
+        If (Me.m_Response IsNot Nothing) AndAlso (Me.m_Response.Characters IsNot Nothing) Then
           Return Me.m_Response.Characters.Length
         Else
           Return 0
@@ -705,7 +705,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
       End Function
 
       Protected Overrides Function iGetItemsReceivedCount() As Int32
-        If (Me.m_Response IsNot Nothing) Then
+        If (Me.m_Response IsNot Nothing) AndAlso (Me.m_Response.Teams IsNot Nothing) Then
           Return Me.m_Response.Teams.Length
         Else
           Return 0
