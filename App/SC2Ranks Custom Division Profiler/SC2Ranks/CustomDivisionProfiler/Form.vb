@@ -253,11 +253,10 @@ Namespace SC2Ranks.CustomDivisionProfiler
               Call .Dispose()
             End With
 
-            If Not Me.m_Config.AutoClose Then Call MsgBox(String.Format("Data received successfully!{0}Credits used: {1}", vbCrLf, Job.CreditsUsed.ToString()), MsgBoxStyle.Information)
             If (Not Me.m_Config.AutoClose) AndAlso (Not Me.m_Config.DisableAutoOpen) Then Call Diagnostics.Process.Start(Path)
-          Else
-            If Not Me.m_Config.AutoClose Then Call MsgBox(String.Format("Data received successfully!{0}Credits used: {1}", vbCrLf, Job.CreditsUsed.ToString()), MsgBoxStyle.Information)
           End If
+
+          If Not Me.m_Config.AutoClose Then Call MsgBox(String.Format("Data received successfully!{0}Credits used: {1}", vbCrLf, Job.CreditsUsed.ToString()), MsgBoxStyle.Information)
         Catch iEx As Exception
           If Verbose Then
             tMessage = "Error saving data: " + iEx.ToString
