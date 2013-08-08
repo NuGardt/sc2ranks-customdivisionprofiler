@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Language" content="en" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>NuGardt SC2Ranks.com Custom Division Profiler</title>
+        <style type="text/css">
+            .heading {
+                font-family: Verdana;
+                font-size: xx-large;
+                text-align: center;
+            }
+
+            .subheading {
+                font-size: xx-small;
+                text-align: center;
+            }
+
+            .header { background-color: #808080; }
+
+            .alternate-0 { background-color: #DDDDDD; }
+
+            .alternate-1 { background-color: #FFFFFF; }
+
+            .expansion-header { width: 50px; }
+
+            .lastupdate-header { width: 90px; }
+
+            .rank-header { width: 25px; }
+
+            .region-header { width: 25px; }
+
+            .regionrank-header {
+                text-align: right;
+                width: 40px;
+            }
+
+            .regionrank-cell {
+                text-align: right;
+                width: 40px;
+            }
+
+            .worldrank-header {
+                text-align: right;
+                width: 40px;
+            }
+
+            .worldrank-cell {
+                text-align: right;
+                width: 40px;
+            }
+
+            .league-header {
+                text-align: center;
+                width: 49px;
+            }
+
+            .division-rank-header {
+                text-align: right;
+                width: 35px;
+            }
+
+            .division-rank-cell { text-align: right; }
+
+            .points-header {
+                text-align: right;
+                width: 40px;
+            }
+
+            .points-cell { text-align: right; }
+
+            .wins-header {
+                text-align: right;
+                width: 40px;
+            }
+
+            .wins-cell { text-align: right; }
+
+            .losses-header {
+                text-align: right;
+                width: 40px;
+            }
+
+            .losses-cell { text-align: right; }
+
+            .winlossratio-header {
+                text-align: right;
+                width: 50px;
+            }
+
+            .winlossratio-cell { text-align: right; }
+
+            .league-cell { height: 30px; }
+
+            .fontverdana { font-family: Verdana; }
+
+            .footer {
+                background-color: #808080;
+                font-size: xx-small;
+                text-align: center;
+            }
+
+            .style1 { border-width: 0; }
+
+            .style2 { font-size: large; }
+
+            .style3 { font-size: x-small; }
+
+            .league-unknown { visibility: hidden; }
+
+            .league-grandmaster-4 {
+                background: url("Images/Leagues.png") 25px -156px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-grandmaster-3 {
+                background: url("Images/Leagues.png") 50px -156px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-grandmaster-2 {
+                background: url("Images/Leagues.png") 75px -156px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-grandmaster-1 {
+                background: url("Images/Leagues.png") 100px -156px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-master-4 {
+                background: url("Images/Leagues.png") 25px -130px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-master-3 {
+                background: url("Images/Leagues.png") 50px -130px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-master-2 {
+                background: url("Images/Leagues.png") 75px -130px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-master-1 {
+                background: url("Images/Leagues.png") 100px -130px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-diamond-4 {
+                background: url("Images/Leagues.png") 25px -104px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-diamond-3 {
+                background: url("Images/Leagues.png") 50px -104px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-diamond-2 {
+                background: url("Images/Leagues.png") 75px -104px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-diamond-1 {
+                background: url("Images/Leagues.png") 100px -104px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-platinum-4 {
+                background: url("Images/Leagues.png") 25px -78px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-platinum-3 {
+                background: url("Images/Leagues.png") 50px -78px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-platinum-2 {
+                background: url("Images/Leagues.png") 75px -78px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-platinum-1 {
+                background: url("Images/Leagues.png") 100px -78px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-gold-4 {
+                background: url("Images/Leagues.png") 25px -52px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-gold-3 {
+                background: url("Images/Leagues.png") 50px -52px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-gold-2 {
+                background: url("Images/Leagues.png") 75px -52px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-gold-1 {
+                background: url("Images/Leagues.png") 100px -52px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-silver-4 {
+                background: url("Images/Leagues.png") 25px -26px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-silver-3 {
+                background: url("Images/Leagues.png") 50px -26px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-silver-2 {
+                background: url("Images/Leagues.png") 75px -26px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-silver-1 {
+                background: url("Images/Leagues.png") 100px -26px;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-bronze-4 {
+                background: url("Images/Leagues.png") 25px 0;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-bronze-3 {
+                background: url("Images/Leagues.png") 50px 0;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-bronze-2 {
+                background: url("Images/Leagues.png") 75px 0;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .league-bronze-1 {
+                background: url("Images/Leagues.png") 100px 0;
+                height: 26px;
+                margin: -12px 12px;
+                position: absolute;
+                width: 25px;
+            }
+
+            .race-terran {
+                background: url("Images/Races.png") 0 -33px no-repeat;
+                display: inline-block;
+                Height: 25px;
+                padding: 8px 0 0 25px;
+            }
+
+            .race-zerg {
+                background: url("Images/Races.png") 0 0 no-repeat;
+                display: inline-block;
+                Height: 25px;
+                padding: 8px 0 0 25px;
+            }
+
+            .race-protoss {
+                background: url("Images/Races.png") 0 -66px no-repeat;
+                display: inline-block;
+                Height: 25px;
+                padding: 8px 0 0 25px;
+            }
+
+            .race-random {
+                background: url("Images/Races.png") 0 -99px no-repeat;
+                display: inline-block;
+                Height: 25px;
+                padding: 8px 0 0 25px;
+            }
+        </style>
+        <meta name="keywords" content="NuGardt.com, SC2Ranks.com, StarCraft 2, Rankings, leauge, custom division" />
+    </head>
+
+    <body style="background-color: #C0C0C0">
+
+        <table style="width: 1024px" align="center">
+            <tr>
+                <td class="heading" style="width: 150px"><strong><img alt="[HwC] - Handle with Care" src="Images/PNG_HwC_Logo.png" width="128" height="128" /></strong></td>
+                <td class="heading"><strong>StarCraft 2 Custom Division Statistics</strong><br />
+                    <span class="subheading">Generated at $timestamp$ by $generatedby$ in $generatedin$ seconds.<br /></span> 
+                    <span class="style2"><strong>$customdescription$</strong></span></td>
+                <td class="heading" style="width: 150px"><strong><a href="http://www.sc2ranks.com"><img alt="SC2Ranks.com" src="Images/PNG_SC2Ranks.png" width="128" height="128" class="style1" /></a></strong></td>
+            </tr>
+            <tr>
+                <td class="fontverdana" colspan="3"><strong><span class="style3">Achievement Points</span></strong><span class="style3"><br />$achievement$<br /></span>
+                    <strong><span class="style3">1v1</span></strong><span class="style3"><br />$1v1$<br /></span>
+                    <strong><span class="style3">2v2</span></strong><span class="style3"><br />$2v2$<br /></span>
+                    <strong><span class="style3">3v3</span></strong><span class="style3"><br />$3v3$<br /></span>
+                    <strong><span class="style3">4v4</span></strong><span class="style3"><br />$4v4$</span></td>
+            </tr>
+            <tr>
+                <td class="footer" colspan="3"><span class="fontverdana"><span class="footer"> (C) <a href="http://www.nugardt.com">NuGardt Software</a> - Kevin Gardthausen<br />
+                                                                             Using NuGardt SC2Rank Custom Division Profiler $version$<br />Special Thanks to <a href="http://www.sc2ranks.com">www.sc2ranks.com</a></span></span></td>
+            </tr>
+        </table>
+    </body>
+</html>

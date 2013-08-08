@@ -1,0 +1,11 @@
+LICENSE.txt
+
+NuGardt.Core.dll
+NuGardt.API.Helper.JSON.dll
+NuGardt.SC2Ranks.API.dll
+NuGardt.SC2Ranks.CustomDivisionProfiler.exe
+
+Tools\Template.htm
+Tools\Linux\nscdp_run.sh
+
+Images\*.*
