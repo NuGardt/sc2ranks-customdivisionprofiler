@@ -1,5 +1,4 @@
 LICENSE.txt
-Readme.pdf
 
 NuGardt.Core.dll
 NuGardt.API.Helper.JSON.dll

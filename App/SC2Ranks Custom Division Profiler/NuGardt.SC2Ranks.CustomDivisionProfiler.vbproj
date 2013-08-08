@@ -181,9 +181,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Readme.pdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\ICO_HwC_Logo.ico" />
   </ItemGroup>
   <ItemGroup>
