@@ -239,6 +239,11 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             Call .Reset()
 
             Do While .MoveNext()
+              If .Current.HasError Then
+                Ex = New Exception(.Current.Error)
+                Exit Try
+              End If
+
               Dim Character As Sc2RanksCharacterExtended
 
               CreditsUsed += .Current.CreditsUsed
@@ -279,6 +284,11 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
               Call .Reset()
 
               Do While .MoveNext()
+                If .Current.HasError Then
+                  Ex = New Exception(.Current.Error)
+                  Exit Try
+                End If
+
                 CreditsUsed += .Current.CreditsUsed
 
                 dMax = .Current.Teams.Length - 1
@@ -764,7 +774,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
       [Try] = 0
       ResponseList = iResponses
 
-      If ([Try] >= MaxTries) Then Ex = New Exception("Call failed, number of retries exceeded.")
+      If ([Try] > MaxTries) Then Ex = New Exception("Call failed, number of retries exceeded.")
 
       Return Ex
     End Function
