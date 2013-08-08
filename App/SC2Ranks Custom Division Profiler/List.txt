@@ -2,6 +2,7 @@ LICENSE.txt
 Readme.pdf
 
 NuGardt.Core.dll
+NuGardt.API.Helper.JSON.dll
 NuGardt.SC2Ranks.API.dll
 NuGardt.SC2Ranks.CustomDivisionProfiler.exe
 
