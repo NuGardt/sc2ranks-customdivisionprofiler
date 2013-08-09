@@ -232,7 +232,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
           Call Trace.WriteLine("Downloading custom division data...")
 
           Dim GCDRList As IList(Of Sc2RanksGetCustomDivisionCharacterListResult) = Nothing
-          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksGetCustomDivisionCharacterListResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetCustomDivision), 50, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
+          Ex = ExecutePagedCall(Of GetCustomDivisionPagedCall, Sc2RanksGetCustomDivisionCharacterListResult)(Me.ProcessTag, 0, New GetCustomDivisionPagedCall(RankService, Config.CustomDivisionID, Me.Config.IgnoreCacheGetCustomDivision), SC2Ranks.API.Sc2RanksService.MaxRequestLimit, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, GCDRList)
           If (Ex IsNot Nothing) Then Exit Try
 
           With GCDRList.GetEnumerator()
@@ -271,7 +271,7 @@ Namespace SC2Ranks.CustomDivisionProfiler.Jobs
             Call Trace.WriteLine(String.Format("Downloading team(s) of custom division {0}.", Enums.BracketNotationBuffer.GetValue(Bracket)))
 
             Dim CDTList As IList(Of Sc2RanksGetCustomDivisionTeamListResult) = Nothing
-            Ex = ExecutePagedCall(Of GetCustomDivisionTeamsPagedCall, Sc2RanksGetCustomDivisionTeamListResult)(Me.ProcessTag, (CallCount / TotalCalls) * 100, New GetCustomDivisionTeamsPagedCall(RankService, Me.Config.CustomDivisionID, Me.Config.Expansion, Bracket, Me.Config.IgnoreCacheGetCustomDivisionTeamList), 10, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, CDTList)
+            Ex = ExecutePagedCall(Of GetCustomDivisionTeamsPagedCall, Sc2RanksGetCustomDivisionTeamListResult)(Me.ProcessTag, (CallCount / TotalCalls) * 100, New GetCustomDivisionTeamsPagedCall(RankService, Me.Config.CustomDivisionID, Me.Config.Expansion, Bracket, Me.Config.IgnoreCacheGetCustomDivisionTeamList), SC2Ranks.API.Sc2RanksService.MaxRequestLimit, [Try], Me.Config.RetryCount, Me.Config.RetryWaitTime, ReportProgress, OnCancelPending, CDTList)
             If (Ex IsNot Nothing) Then Exit Try
 
             CallCount += 1
