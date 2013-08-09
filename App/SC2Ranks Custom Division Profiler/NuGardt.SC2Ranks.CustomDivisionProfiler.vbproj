@@ -194,7 +194,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\PNG_SC2Ranks.png" />
-    <None Include="Resources\SVN_Revision.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Lib\SC2Ranks.API\NuGardt.SC2Ranks.API.vbproj">
