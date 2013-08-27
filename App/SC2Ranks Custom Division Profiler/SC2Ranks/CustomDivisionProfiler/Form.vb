@@ -389,7 +389,6 @@ Namespace SC2Ranks.CustomDivisionProfiler
 
     Private Sub FormKeyDown(ByVal Sender As Object,
                             ByVal e As KeyEventArgs) Handles Me.KeyDown
-      Dim Ex As Exception = Nothing
       If e.KeyCode = Keys.F1 Then Call Diagnostics.Process.Start("http://www.nugardt.com/open-source/sc2ranks-custom-division-profiler/")
     End Sub
 
