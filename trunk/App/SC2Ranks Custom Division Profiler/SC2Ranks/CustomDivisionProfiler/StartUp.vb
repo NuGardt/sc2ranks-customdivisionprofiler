@@ -159,7 +159,7 @@ Namespace SC2Ranks.CustomDivisionProfiler
           End With
 
           Call Trace.WriteLine("Profiling completed.")
-          Call Trace.WriteLine("Credits used: ", tJob.CreditsUsed.ToString())
+          Call Trace.WriteLine("Credits used: " + tJob.CreditsUsed.ToString())
         Else
           Call Trace.WriteLine("Profiling failed with no result output.")
           If (tJob.Error IsNot Nothing) Then Call Trace.WriteLine(tJob.Error)
